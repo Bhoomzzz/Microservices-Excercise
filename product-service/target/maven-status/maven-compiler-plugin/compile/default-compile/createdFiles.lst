@@ -1,3 +1,4 @@
+com\example\controller\ProductController.class
 com\example\ProductServiceApplication.class
 com\example\service\ProductService.class
 com\example\entity\Product.class
