@@ -1,3 +1,4 @@
 com\example\CartServiceApplication.class
 com\example\entity\Cart.class
 com\example\entity\CartItem.class
+com\example\repository\CartRepository.class

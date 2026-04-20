@@ -1,2 +1,3 @@
-com\example\entity\Product.class
 com\example\ProductServiceApplication.class
+com\example\entity\Product.class
+com\example\repository\ProductRepository.class
