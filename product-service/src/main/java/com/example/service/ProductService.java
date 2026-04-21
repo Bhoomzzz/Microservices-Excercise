@@ -3,6 +3,7 @@ package com.example.service;
 import com.example.entity.Product;
 import com.example.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.*;
 
 import java.util.List;
 
@@ -33,5 +34,19 @@ public class ProductService {
     // DELETE
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    // PAGINATION
+    public Page<Product> getAllProducts(int page, int size, String sortBy) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
+        return repository.findAll(pageable);
+    }
+
+
+    public List<Product> getExpensiveProducts(double price) {
+        return repository.findAll()
+                .stream()
+                .filter(product -> product.getPrice() > price)
+                .toList();
     }
 }
