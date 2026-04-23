@@ -16,33 +16,34 @@ public class ProductService {
         this.repository = repository;
     }
 
-    // CREATE
+    // ✅ CREATE
     public Product save(Product product) {
         return repository.save(product);
     }
 
-    // READ ALL
+    // ✅ READ ALL
     public List<Product> getAll() {
         return repository.findAll();
     }
 
-    // READ BY ID
+    // ✅ READ BY ID (Improved with exception)
     public Product getById(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
     }
 
-    // DELETE
+    // ✅ DELETE
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
-    // PAGINATION
+    // ✅ PAGINATION
     public Page<Product> getAllProducts(int page, int size, String sortBy) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
         return repository.findAll(pageable);
     }
 
-
+    // ✅ FILTER
     public List<Product> getExpensiveProducts(double price) {
         return repository.findAll()
                 .stream()

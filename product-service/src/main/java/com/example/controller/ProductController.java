@@ -17,25 +17,31 @@ public class ProductController {
         this.productService = productService;
     }
 
-    // CREATE
+    // ✅ CREATE
     @PostMapping
     public Product save(@RequestBody Product product) {
         return productService.save(product);
     }
 
-    // GET ALL
+    // ✅ GET ALL
     @GetMapping("/all")
     public List<Product> getAll() {
         return productService.getAll();
     }
 
-    // DELETE
+    // ✅ GET BY ID (🔥 THIS WAS MISSING)
+    @GetMapping("/{id}")
+    public Product getById(@PathVariable Long id) {
+        return productService.getById(id);
+    }
+
+    // ✅ DELETE
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         productService.delete(id);
     }
 
-    // PAGINATION
+    // ✅ PAGINATION
     @GetMapping
     public Page<Product> getProducts(
             @RequestParam int page,
@@ -45,7 +51,7 @@ public class ProductController {
         return productService.getAllProducts(page, size, sortBy);
     }
 
-
+    // ✅ FILTER
     @GetMapping("/expensive")
     public List<Product> getExpensiveProducts(@RequestParam double price) {
         return productService.getExpensiveProducts(price);

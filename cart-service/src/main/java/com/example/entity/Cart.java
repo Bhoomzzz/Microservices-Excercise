@@ -11,6 +11,10 @@ public class Cart {
 
     private Integer userId;
 
+    private Integer productId;
+    private int quantity;
+    private double totalPrice;
+
     public Integer getId() {
         return id;
     }
@@ -25,5 +29,29 @@ public class Cart {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
+    }
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

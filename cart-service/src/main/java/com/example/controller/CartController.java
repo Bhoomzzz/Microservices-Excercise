@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.entity.Cart;
+import com.example.dto.Product;
 import com.example.service.CartService;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,5 +33,11 @@ public class CartController {
     @DeleteMapping("/{id}")
     public void deleteCartItem(@PathVariable Long id) {
         service.delete(id);
+    }
+
+
+    @GetMapping("/product/{id}")
+    public Product getProduct(@PathVariable int id) {
+        return service.getProductById(id);
     }
 }
