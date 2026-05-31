@@ -2,16 +2,19 @@ package com.example.dto;
 
 public class Product {
 
-    private Integer id;
+    private Long id;
     private String name;
     private double price;
     private int stock;
 
-    public Integer getId() {
+    public Product() {
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -37,5 +40,15 @@ public class Product {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", stock=" + stock +
+                '}';
     }
 }

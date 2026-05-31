@@ -29,6 +29,12 @@ public class CartController {
         return service.getAll();
     }
 
+    // GET CART ITEM BY ID
+    @GetMapping("/{id}")
+    public Cart getCartById(@PathVariable Long id) {
+        return service.getCartById(id);
+    }
+
     // DELETE CART ITEM
     @DeleteMapping("/{id}")
     public void deleteCartItem(@PathVariable Long id) {

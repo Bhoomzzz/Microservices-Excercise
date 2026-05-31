@@ -1,61 +1,85 @@
 package com.example.controller;
 
 import com.example.entity.Product;
-import com.example.service.ProductService;
+import com.example.exception.ResourceNotFoundException;
+import com.example.repository.ProductRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
+import jakarta.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/products")
 public class ProductController {
 
-    private final ProductService productService;
+    private static final Logger logger =
+            LoggerFactory.getLogger(ProductController.class);
 
+    private final ProductRepository repository;
 
-    public ProductController(ProductService productService) {
-        this.productService = productService;
+    public ProductController(ProductRepository repository) {
+        this.repository = repository;
     }
 
-
+    // SAVE PRODUCT
     @PostMapping
-    public Product save(@RequestBody Product product) {
-        return productService.save(product);
+    public Product saveProduct(@Valid @RequestBody Product product) {
+
+        logger.info("Saving Product : {}", product.getName());
+
+        return repository.save(product);
     }
 
-
-    @GetMapping("/all")
-    public List<Product> getAll() {
-        return productService.getAll();
-    }
-
-
-    @GetMapping("/{id}")
-    public Product getById(@PathVariable Long id) {
-        return productService.getById(id);
-    }
-
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        productService.delete(id);
-    }
-
-
+    // GET ALL PRODUCTS WITH PAGINATION
     @GetMapping
-    public Page<Product> getProducts(
-            @RequestParam int page,
-            @RequestParam int size,
-            @RequestParam String sortBy) {
+    public Page<Product> getAllProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
 
-        return productService.getAllProducts(page, size, sortBy);
+        logger.info(
+                "Fetching Products Page : {} Size : {}",
+                page,
+                size
+        );
+
+        return repository.findAll(
+                PageRequest.of(page, size)
+        );
+    }
+    @GetMapping("/available")
+    public List<Product> getAvailableProducts() {
+
+        logger.info("Fetching Available Products");
+
+        return repository.findAvailableProducts();
     }
 
+    // GET PRODUCT BY ID
+    @GetMapping("/{id}")
+    public Product getProductById(@PathVariable Long id) {
 
-    @GetMapping("/expensive")
-    public List<Product> getExpensiveProducts(@RequestParam double price) {
-        return productService.getExpensiveProducts(price);
+        logger.info("Fetching Product Id : {}", id);
+
+        return repository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Product not found"));
+    }
+
+    // DELETE PRODUCT
+    @DeleteMapping("/{id}")
+    public void deleteProduct(@PathVariable Long id) {
+
+        logger.info("Deleting Product Id : {}", id);
+
+        repository.deleteById(id);
     }
 }
