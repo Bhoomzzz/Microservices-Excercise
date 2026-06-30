@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCartItems } from "../features/cartSlice";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Cart() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
   const loading = useSelector((state) => state.cart.loading);
+  const error = useSelector((state) => state.cart.error);
 
   useEffect(() => {
     dispatch(fetchCartItems());
@@ -17,9 +19,19 @@ function Cart() {
     }, 0);
   };
 
+  if (loading) {
+    return <LoadingSpinner message="Loading cart..." />;
+  }
+
   return (
     <section className="panel">
       <h2>Shopping Cart</h2>
+
+      {error && (
+        <div className="alert alert-error">
+          <strong>Error:</strong> {error}
+        </div>
+      )}
 
       <div className="table-wrapper">
         <table>
@@ -34,11 +46,7 @@ function Cart() {
           </thead>
 
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="5">Loading cart...</td>
-              </tr>
-            ) : cartItems.length === 0 ? (
+            {cartItems.length === 0 ? (
               <tr>
                 <td colSpan="5">Your cart is empty.</td>
               </tr>

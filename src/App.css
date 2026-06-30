@@ -80,6 +80,11 @@
   border-radius: 6px;
 }
 
+.form-grid input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
 button {
   padding: 8px 14px;
   border: none;
@@ -87,9 +92,10 @@ button {
   background: #2563eb;
   color: #fff;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   background: #1d4ed8;
 }
 
@@ -100,8 +106,42 @@ button:disabled {
 
 .status-message {
   margin-top: 10px;
-  color: #047857;
+  padding: 10px 12px;
+  border-radius: 4px;
   font-weight: 600;
+}
+
+.status-message.success {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.status-message.error {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.alert {
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  border-left: 4px solid;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #991b1b;
+  border-left-color: #dc2626;
+}
+
+.alert-success {
+  background: #d1fae5;
+  color: #047857;
+  border-left-color: #10b981;
+}
+
+.alert strong {
+  font-weight: 700;
 }
 
 .table-wrapper {
@@ -133,15 +173,42 @@ th {
   border-radius: 4px;
 }
 
+.qty-input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
+}
+
 .btn-add-cart {
   padding: 6px 12px;
   font-size: 0.9rem;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .btn-add-cart:disabled {
   background: #cbd5e1;
   cursor: not-allowed;
+}
+
+.spinner-mini {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #f3f4f6;
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .cart-summary {

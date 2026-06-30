@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { createProduct } from "../features/productSlice";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function AddProduct() {
   const dispatch = useDispatch();
+  const productLoading = useSelector((state) => state.products.loading);
+  const productError = useSelector((state) => state.products.error);
 
   const [product, setProduct] = useState({
     name: "",
@@ -11,6 +14,8 @@ function AddProduct() {
     stock: "",
   });
   const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -21,6 +26,16 @@ function AddProduct() {
   };
 
   const saveProduct = async () => {
+    if (!product.name || !product.price || !product.stock) {
+      setMessage("Please fill in all fields");
+      setMessageType("error");
+      return;
+    }
+
+    setIsSaving(true);
+    setMessage("");
+    setMessageType("");
+
     try {
       await dispatch(
         createProduct({
@@ -31,6 +46,7 @@ function AddProduct() {
       ).unwrap();
 
       setMessage("Product added successfully");
+      setMessageType("success");
       setProduct({
         name: "",
         price: "",
@@ -38,9 +54,16 @@ function AddProduct() {
       });
     } catch (error) {
       console.error(error);
-      setMessage("Unable to add product");
+      setMessage(error?.message || "Unable to add product");
+      setMessageType("error");
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  if (isSaving) {
+    return <LoadingSpinner message="Adding product..." />;
+  }
 
   return (
     <section className="panel">
@@ -55,6 +78,7 @@ function AddProduct() {
             placeholder="Product Name"
             value={product.name}
             onChange={handleChange}
+            disabled={isSaving}
           />
         </label>
 
@@ -66,6 +90,7 @@ function AddProduct() {
             placeholder="Price"
             value={product.price}
             onChange={handleChange}
+            disabled={isSaving}
           />
         </label>
 
@@ -77,12 +102,19 @@ function AddProduct() {
             placeholder="Stock"
             value={product.stock}
             onChange={handleChange}
+            disabled={isSaving}
           />
         </label>
       </div>
 
-      <button onClick={saveProduct}>Save Product</button>
-      {message ? <p className="status-message">{message}</p> : null}
+      <button onClick={saveProduct} disabled={isSaving || productLoading}>
+        {isSaving ? "Saving..." : "Save Product"}
+      </button>
+
+      {message && (
+        <p className={`status-message ${messageType}`}>{message}</p>
+      )}
+      {productError && <p className="status-message error">{productError}</p>}
     </section>
   );
 }
