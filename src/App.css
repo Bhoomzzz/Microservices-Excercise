@@ -6,6 +6,45 @@
   color: #1f2937;
 }
 
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.app-header h1 {
+  margin: 0;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-buttons button {
+  padding: 8px 16px;
+  border: 2px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #1f2937;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.nav-buttons button:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.nav-buttons button.active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
+
 .app-shell h1,
 .panel h2 {
   margin: 0 0 12px;
@@ -54,6 +93,11 @@ button:hover {
   background: #1d4ed8;
 }
 
+button:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
 .status-message {
   margin-top: 10px;
   color: #047857;
@@ -79,4 +123,49 @@ td {
 
 th {
   background: #f3f4f6;
+  font-weight: 600;
+}
+
+.qty-input {
+  width: 60px;
+  padding: 4px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+.btn-add-cart {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.btn-add-cart:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.cart-summary {
+  margin-top: 20px;
+  padding: 20px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.cart-summary h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.btn-checkout {
+  padding: 10px 20px;
+  background: #10b981;
+  font-weight: 600;
+}
+
+.btn-checkout:hover {
+  background: #059669;
 }
