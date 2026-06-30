@@ -18,6 +18,7 @@ public class ProductService {
     // SAVE PRODUCT
     public Product save(Product product) {
         return repository.save(product);
+
     }
 
     // GET ALL PRODUCTS
