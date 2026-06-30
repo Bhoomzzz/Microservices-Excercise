@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { createProduct } from "../features/productSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { useProducts } from "../hooks";
 
 function AddProduct() {
-  const dispatch = useDispatch();
-  const productLoading = useSelector((state) => state.products.loading);
-  const productError = useSelector((state) => state.products.error);
+  const { addProduct, loading, error } = useProducts(0);
 
   const [product, setProduct] = useState({
     name: "",
@@ -37,21 +34,24 @@ function AddProduct() {
     setMessageType("");
 
     try {
-      await dispatch(
-        createProduct({
-          ...product,
-          price: Number(product.price),
-          stock: Number(product.stock),
-        })
-      ).unwrap();
-
-      setMessage("Product added successfully");
-      setMessageType("success");
-      setProduct({
-        name: "",
-        price: "",
-        stock: "",
+      const result = await addProduct({
+        name: product.name,
+        price: product.price,
+        stock: product.stock,
       });
+
+      if (result.success) {
+        setMessage("Product added successfully");
+        setMessageType("success");
+        setProduct({
+          name: "",
+          price: "",
+          stock: "",
+        });
+      } else {
+        setMessage(result.error || "Unable to add product");
+        setMessageType("error");
+      }
     } catch (error) {
       console.error(error);
       setMessage(error?.message || "Unable to add product");
@@ -107,14 +107,14 @@ function AddProduct() {
         </label>
       </div>
 
-      <button onClick={saveProduct} disabled={isSaving || productLoading}>
+      <button onClick={saveProduct} disabled={isSaving || loading}>
         {isSaving ? "Saving..." : "Save Product"}
       </button>
 
       {message && (
         <p className={`status-message ${messageType}`}>{message}</p>
       )}
-      {productError && <p className="status-message error">{productError}</p>}
+      {error && <p className="status-message error">{error}</p>}
     </section>
   );
 }

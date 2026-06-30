@@ -1,50 +1,28 @@
-import { useState, useMemo } from "react";
-import { useEffect } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "../features/productSlice";
 import { createCartItem } from "../features/cartSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { useProducts, useProductSearch, usePagination } from "../hooks";
 
 function ProductList() {
+  const { products, loading, error } = useProducts(0);
+  const { currentPage, totalPages, handlePageChange, getPageNumbers } =
+    usePagination();
+  const {
+    searchTerm,
+    setSearchTerm,
+    minPrice,
+    setMinPrice,
+    maxPrice,
+    setMaxPrice,
+    filteredProducts,
+  } = useProductSearch(products);
+
   const dispatch = useDispatch();
-  const products = useSelector((state) => state.products.items);
-  const loading = useSelector((state) => state.products.loading);
-  const error = useSelector((state) => state.products.error);
   const cartError = useSelector((state) => state.cart.error);
-  const currentPage = useSelector((state) => state.products.currentPage);
-  const totalPages = useSelector((state) => state.products.totalPages);
   const [quantities, setQuantities] = useState({});
   const [addingToCart, setAddingToCart] = useState({});
   const [cartMessage, setCartMessage] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [minPrice, setMinPrice] = useState("");
-  const [maxPrice, setMaxPrice] = useState("");
-
-  useEffect(() => {
-    dispatch(fetchProducts(0));
-  }, [dispatch]);
-
-  const handlePageChange = (pageNum) => {
-    if (pageNum >= 0 && pageNum < totalPages) {
-      dispatch(fetchProducts(pageNum));
-      setQuantities({});
-    }
-  };
-
-  const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
-
-      const price = parseFloat(product.price) || 0;
-      const min = minPrice ? parseFloat(minPrice) : -Infinity;
-      const max = maxPrice ? parseFloat(maxPrice) : Infinity;
-      const matchesPrice = price >= min && price <= max;
-
-      return matchesSearch && matchesPrice;
-    });
-  }, [products, searchTerm, minPrice, maxPrice]);
 
   const handleQuantityChange = (productId, value) => {
     setQuantities((prev) => ({
@@ -82,16 +60,7 @@ function ProductList() {
     return <LoadingSpinner message="Loading products..." />;
   }
 
-  const pageNumbers = [];
-  const maxPagesToShow = 5;
-  let startPage = Math.max(0, currentPage - Math.floor(maxPagesToShow / 2));
-  let endPage = Math.min(totalPages, startPage + maxPagesToShow);
-  if (endPage - startPage < maxPagesToShow) {
-    startPage = Math.max(0, endPage - maxPagesToShow);
-  }
-  for (let i = startPage; i < endPage; i++) {
-    pageNumbers.push(i);
-  }
+  const pageNumbers = getPageNumbers();
 
   return (
     <section className="panel">

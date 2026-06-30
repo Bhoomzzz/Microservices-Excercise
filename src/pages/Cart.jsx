@@ -1,23 +1,8 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCartItems } from "../features/cartSlice";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { useCart } from "../hooks";
 
 function Cart() {
-  const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items);
-  const loading = useSelector((state) => state.cart.loading);
-  const error = useSelector((state) => state.cart.error);
-
-  useEffect(() => {
-    dispatch(fetchCartItems());
-  }, [dispatch]);
-
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      return total + (item.price * item.quantity || 0);
-    }, 0);
-  };
+  const { items, loading, error, calculateTotal } = useCart();
 
   if (loading) {
     return <LoadingSpinner message="Loading cart..." />;
@@ -46,12 +31,12 @@ function Cart() {
           </thead>
 
           <tbody>
-            {cartItems.length === 0 ? (
+            {items.length === 0 ? (
               <tr>
                 <td colSpan="5">Your cart is empty.</td>
               </tr>
             ) : (
-              cartItems.map((item, index) => (
+              items.map((item, index) => (
                 <tr key={item.id ?? `${item.name}-${index}`}>
                   <td>{item.productId ?? item.id ?? index + 1}</td>
                   <td>{item.name}</td>
@@ -65,7 +50,7 @@ function Cart() {
         </table>
       </div>
 
-      {cartItems.length > 0 && (
+      {items.length > 0 && (
         <div className="cart-summary">
           <h3>Total: ${calculateTotal().toFixed(2)}</h3>
           <button className="btn-checkout">Proceed to Checkout</button>
