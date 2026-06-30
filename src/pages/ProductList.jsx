@@ -11,6 +11,8 @@ function ProductList() {
   const loading = useSelector((state) => state.products.loading);
   const error = useSelector((state) => state.products.error);
   const cartError = useSelector((state) => state.cart.error);
+  const currentPage = useSelector((state) => state.products.currentPage);
+  const totalPages = useSelector((state) => state.products.totalPages);
   const [quantities, setQuantities] = useState({});
   const [addingToCart, setAddingToCart] = useState({});
   const [cartMessage, setCartMessage] = useState("");
@@ -19,8 +21,15 @@ function ProductList() {
   const [maxPrice, setMaxPrice] = useState("");
 
   useEffect(() => {
-    dispatch(fetchProducts());
+    dispatch(fetchProducts(0));
   }, [dispatch]);
+
+  const handlePageChange = (pageNum) => {
+    if (pageNum >= 0 && pageNum < totalPages) {
+      dispatch(fetchProducts(pageNum));
+      setQuantities({});
+    }
+  };
 
   const filteredProducts = useMemo(() => {
     return products.filter((product) => {
@@ -71,6 +80,17 @@ function ProductList() {
 
   if (loading) {
     return <LoadingSpinner message="Loading products..." />;
+  }
+
+  const pageNumbers = [];
+  const maxPagesToShow = 5;
+  let startPage = Math.max(0, currentPage - Math.floor(maxPagesToShow / 2));
+  let endPage = Math.min(totalPages, startPage + maxPagesToShow);
+  if (endPage - startPage < maxPagesToShow) {
+    startPage = Math.max(0, endPage - maxPagesToShow);
+  }
+  for (let i = startPage; i < endPage; i++) {
+    pageNumbers.push(i);
   }
 
   return (
@@ -193,6 +213,70 @@ function ProductList() {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 0}
+            className="pagination-btn"
+          >
+            ← Prev
+          </button>
+
+          <div className="page-numbers">
+            {startPage > 0 && (
+              <>
+                <button
+                  onClick={() => handlePageChange(0)}
+                  className="page-num"
+                >
+                  1
+                </button>
+                {startPage > 1 && <span className="page-ellipsis">...</span>}
+              </>
+            )}
+
+            {pageNumbers.map((pageNum) => (
+              <button
+                key={pageNum}
+                onClick={() => handlePageChange(pageNum)}
+                className={`page-num ${pageNum === currentPage ? "active" : ""}`}
+              >
+                {pageNum + 1}
+              </button>
+            ))}
+
+            {endPage < totalPages && (
+              <>
+                {endPage < totalPages - 1 && (
+                  <span className="page-ellipsis">...</span>
+                )}
+                <button
+                  onClick={() => handlePageChange(totalPages - 1)}
+                  className="page-num"
+                >
+                  {totalPages}
+                </button>
+              </>
+            )}
+          </div>
+
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages - 1}
+            className="pagination-btn"
+          >
+            Next →
+          </button>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="pagination-info">
+          Page {currentPage + 1} of {totalPages}
+        </div>
+      )}
     </section>
   );
 }
