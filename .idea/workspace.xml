@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="048beb4d-d634-4f13-9533-4f9fbb631bbf" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/product-service/src/main/java/com/example/controller/ProductController.java" beforeDir="false" afterPath="$PROJECT_DIR$/product-service/src/main/java/com/example/controller/ProductController.java" afterDir="false" />
-    </list>
+    <list default="true" id="048beb4d-d634-4f13-9533-4f9fbb631bbf" name="Changes" comment="changed port number" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -52,6 +50,7 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "main",
@@ -76,7 +75,20 @@
       <option name="presentableId" value="Default" />
       <updated>1776635317653</updated>
     </task>
+    <task id="LOCAL-00001" summary="changed port number">
+      <option name="closed" value="true" />
+      <created>1783386583215</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1783386583215</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="changed port number" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed port number" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
