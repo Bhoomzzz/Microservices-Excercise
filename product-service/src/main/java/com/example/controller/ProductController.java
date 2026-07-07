@@ -41,8 +41,8 @@ public class ProductController {
     // GET ALL PRODUCTS WITH PAGINATION
     @GetMapping
     public Page<Product> getAllProducts(
-            @RequestParam(defaultValue = "5") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "15") int page,
+            @RequestParam(defaultValue = "100") int size) {
 
         logger.info(
                 "Fetching Products Page : {} Size : {}",
