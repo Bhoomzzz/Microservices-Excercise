@@ -46,14 +46,26 @@ pipeline {
                 stage('product-service image') {
                     steps {
                         dir('product-service') {
-                            sh "docker build -t ${ECR_REGISTRY}/product-service:${IMAGE_TAG} ."
+                            script {
+                                if (isUnix()) {
+                                    sh "docker build -t ${ECR_REGISTRY}/product-service:${IMAGE_TAG} ."
+                                } else {
+                                    bat "docker build -t ${ECR_REGISTRY}/product-service:${IMAGE_TAG} ."
+                                }
+                            }
                         }
                     }
                 }
                 stage('cart-service image') {
                     steps {
                         dir('cart-service') {
-                            sh "docker build -t ${ECR_REGISTRY}/cart-service:${IMAGE_TAG} ."
+                            script {
+                                if (isUnix()) {
+                                    sh "docker build -t ${ECR_REGISTRY}/cart-service:${IMAGE_TAG} ."
+                                } else {
+                                    bat "docker build -t ${ECR_REGISTRY}/cart-service:${IMAGE_TAG} ."
+                                }
+                            }
                         }
                     }
                 }
@@ -62,11 +74,21 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDS_ID}"]]) {
-                    sh """
-                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-                    docker push ${ECR_REGISTRY}/product-service:${IMAGE_TAG}
-                    docker push ${ECR_REGISTRY}/cart-service:${IMAGE_TAG}
-                    """
+                    script {
+                        if (isUnix()) {
+                            sh """
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                            docker push ${ECR_REGISTRY}/product-service:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/cart-service:${IMAGE_TAG}
+                            """
+                        } else {
+                            bat """
+                            powershell -NoProfile -Command \"aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}\"
+                            docker push ${ECR_REGISTRY}/product-service:${IMAGE_TAG}
+                            docker push ${ECR_REGISTRY}/cart-service:${IMAGE_TAG}
+                            """
+                        }
+                    }
                 }
             }
         }
@@ -74,12 +96,27 @@ pipeline {
             when { branch 'main' }
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
-                    sh """
-                    sed -e 's#<IMAGE>#${ECR_REGISTRY}/product-service:${IMAGE_TAG}#' k8s/product-service-deployment.yaml | kubectl apply -n ${K8S_NAMESPACE} -f -
-                    sed -e 's#<IMAGE>#${ECR_REGISTRY}/cart-service:${IMAGE_TAG}#' k8s/cart-service-deployment.yaml | kubectl apply -n ${K8S_NAMESPACE} -f -
-                    kubectl rollout status deployment/product-service -n ${K8S_NAMESPACE}
-                    kubectl rollout status deployment/cart-service -n ${K8S_NAMESPACE}
-                    """
+                    script {
+                        if (isUnix()) {
+                            sh """
+                            sed -e 's#<IMAGE>#${ECR_REGISTRY}/product-service:${IMAGE_TAG}#' k8s/product-service-deployment.yaml | kubectl apply -n ${K8S_NAMESPACE} -f -
+                            sed -e 's#<IMAGE>#${ECR_REGISTRY}/cart-service:${IMAGE_TAG}#' k8s/cart-service-deployment.yaml | kubectl apply -n ${K8S_NAMESPACE} -f -
+                            kubectl rollout status deployment/product-service -n ${K8S_NAMESPACE}
+                            kubectl rollout status deployment/cart-service -n ${K8S_NAMESPACE}
+                            """
+                        } else {
+                            bat """
+                            powershell -NoProfile -Command \"
+                              (Get-Content 'k8s\\product-service-deployment.yaml' -Raw) -replace '<IMAGE>', '${ECR_REGISTRY}/product-service:${IMAGE_TAG}' | Set-Content 'temp-product-service-deployment.yaml';
+                              kubectl apply -n ${K8S_NAMESPACE} -f temp-product-service-deployment.yaml;
+                              kubectl rollout status deployment/product-service -n ${K8S_NAMESPACE};
+                              (Get-Content 'k8s\\cart-service-deployment.yaml' -Raw) -replace '<IMAGE>', '${ECR_REGISTRY}/cart-service:${IMAGE_TAG}' | Set-Content 'temp-cart-service-deployment.yaml';
+                              kubectl apply -n ${K8S_NAMESPACE} -f temp-cart-service-deployment.yaml;
+                              kubectl rollout status deployment/cart-service -n ${K8S_NAMESPACE};
+                            \"
+                            """
+                        }
+                    }
                 }
             }
         }
