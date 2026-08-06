@@ -1,83 +1,89 @@
-﻿pipeline {
+pipeline {
     agent any
-
     tools {
         jdk 'JDK25'
         maven 'Maven3'
     }
-
     triggers {
         githubPush()
     }
-
+    environment {
+        AWS_REGION      = 'us-east-1'
+        AWS_ACCOUNT_ID  = '123456789012'
+        ECR_REGISTRY    = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        IMAGE_TAG       = "${env.BUILD_NUMBER}"
+        AWS_CREDS_ID    = 'aws-ecr-credentials'
+        KUBECONFIG_CRED = 'eks-kubeconfig'
+        K8S_NAMESPACE   = 'default'
+    }
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
-        stage('Build Services') {
+        stage('Build & Test') {
             parallel {
-                stage('Build Product Service') {
+                stage('Product Service') {
                     steps {
-                        script {
-                            runMaven('product-service', 'clean package')
-                        }
+                        script { runMaven('product-service', 'clean verify') }
                     }
                 }
-                stage('Build Cart Service') {
+                stage('Cart Service') {
                     steps {
-                        script {
-                            runMaven('cart-service', 'clean package')
-                        }
+                        script { runMaven('cart-service', 'clean verify') }
                     }
                 }
             }
         }
-
-        stage('Build Exercises') {
-            parallel {
-                stage('Build Excercise') {
-                    steps {
-                        script {
-                            runMaven('Excercise', 'clean package')
-                        }
-                    }
-                }
-                stage('Build Excercise 1') {
-                    steps {
-                        script {
-                            runMaven('Excercise 1', 'clean package')
-                        }
-                    }
-                }
-                stage('Build Excercise 3') {
-                    steps {
-                        script {
-                            runMaven('Excercise3', 'clean package')
-                        }
-                    }
-                }
-            }
-        }
-
         stage('Archive Artifacts') {
             steps {
                 archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true, allowEmptyArchive: true
             }
         }
-
-        stage('Deploy') {
-            when {
-                branch 'main'
+        stage('Docker Build') {
+            parallel {
+                stage('product-service image') {
+                    steps {
+                        dir('product-service') {
+                            sh "docker build -t ${ECR_REGISTRY}/product-service:${IMAGE_TAG} ."
+                        }
+                    }
+                }
+                stage('cart-service image') {
+                    steps {
+                        dir('cart-service') {
+                            sh "docker build -t ${ECR_REGISTRY}/cart-service:${IMAGE_TAG} ."
+                        }
+                    }
+                }
             }
+        }
+        stage('Push to ECR') {
             steps {
-                echo 'Deployment step: add your deploy commands here'
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: "${AWS_CREDS_ID}"]]) {
+                    sh """
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+                    docker push ${ECR_REGISTRY}/product-service:${IMAGE_TAG}
+                    docker push ${ECR_REGISTRY}/cart-service:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+        stage('Deploy to Kubernetes') {
+            when { branch 'main' }
+            steps {
+                withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG')]) {
+                    sh """
+                    sed -e 's#<IMAGE>#${ECR_REGISTRY}/product-service:${IMAGE_TAG}#' k8s/product-service-deployment.yaml | kubectl apply -n ${K8S_NAMESPACE} -f -
+                    sed -e 's#<IMAGE>#${ECR_REGISTRY}/cart-service:${IMAGE_TAG}#' k8s/cart-service-deployment.yaml | kubectl apply -n ${K8S_NAMESPACE} -f -
+                    kubectl rollout status deployment/product-service -n ${K8S_NAMESPACE}
+                    kubectl rollout status deployment/cart-service -n ${K8S_NAMESPACE}
+                    """
+                }
             }
         }
     }
-
     post {
         success {
             echo 'Pipeline completed successfully.'
