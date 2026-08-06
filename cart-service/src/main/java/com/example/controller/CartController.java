@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")   // <-- Add this
 @RequestMapping("/cart")
 public class CartController {
 
@@ -20,6 +21,9 @@ public class CartController {
     // ADD TO CART
     @PostMapping
     public Cart addToCart(@RequestBody Cart cart) {
+
+        System.out.println("Received Cart : " + cart);
+
         return service.save(cart);
     }
 

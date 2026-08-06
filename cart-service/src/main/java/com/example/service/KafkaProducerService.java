@@ -13,7 +13,18 @@ public class KafkaProducerService {
     }
 
     public void sendMessage(String message) {
-        kafkaTemplate.send("cart-topic", message);
-        System.out.println("Message Sent to Kafka: " + message);
+
+        try {
+
+            kafkaTemplate.send("cart-topic", message);
+
+            System.out.println("Message Sent to Kafka : " + message);
+
+        } catch (Exception e) {
+
+            System.out.println("Kafka is not running.");
+            e.printStackTrace();
+
+        }
     }
 }
